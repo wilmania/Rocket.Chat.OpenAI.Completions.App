@@ -33,5 +33,4 @@ Or you can call as a message action button:
 
 ## ROADMAP
 - Allow context chat on direct
-- Allow optional per user system configuration instruction
 
