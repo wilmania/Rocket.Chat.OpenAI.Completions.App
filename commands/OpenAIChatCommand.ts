@@ -12,6 +12,7 @@ import { OpenAiCompletionRequest } from "../lib/RequestOpenAiChat";
 import { sendMessage } from "../lib/SendMessage";
 import { sendNotification } from "../lib/SendNotification";
 import { OpenAiChatApp } from "../OpenAiChatApp";
+import { SystemInstructionPersistence } from "../persistence/ChatGPTPersistence";
 import { createAskChatGPTModal } from "../ui/AskChatGPTModal";
 
 export class OpenAIChatCommand implements ISlashCommand {
@@ -33,6 +34,7 @@ export class OpenAIChatCommand implements ISlashCommand {
         const sender = context.getSender();
         const threadId = context.getThreadId()
         const triggerId = context.getTriggerId();
+        const PersistenceReader = read.getPersistenceReader()
         if (!triggerId) {
             return this.app.getLogger().error('TRIGGER UNDEFINED');
         }
@@ -43,11 +45,17 @@ export class OpenAIChatCommand implements ISlashCommand {
             .getEnvironmentReader()
             .getSettings()
             .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
-
+            // try to get user setting
+            const user_instruction = await SystemInstructionPersistence.get(read, sender.id)
+            if(!user_instruction.length){
+                // no persisted per user instruction found
+                var instruction = OPEN_AI_DEFAULT_INSTRUCTION as string
+            }else{
+                var instruction = user_instruction[0]["instruction"] as string
+            }
             var askChatGPT_Modal = createAskChatGPTModal(
-                modify, room, undefined, OPEN_AI_DEFAULT_INSTRUCTION, threadId
+                modify, room, undefined, instruction, threadId
             )
-
             return modify.getUiController().openModalView(askChatGPT_Modal, { triggerId }, sender);
 
         } else {

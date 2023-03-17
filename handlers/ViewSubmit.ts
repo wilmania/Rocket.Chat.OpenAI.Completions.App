@@ -12,6 +12,7 @@ import { sendDirect } from "../lib/SendDirect";
 import { sendMessage } from "../lib/SendMessage";
 import { sendNotification } from "../lib/SendNotification";
 import { OpenAiChatApp } from "../OpenAiChatApp";
+import { SystemInstructionPersistence } from "../persistence/ChatGPTPersistence";
 
 export class ViewSubmitHandler {
     public async executor(
@@ -37,14 +38,26 @@ export class ViewSubmitHandler {
                 const output_options = completions_options["output_option"];
                 const user = interaction_data.user;
 
+                // process configurable system instruction
+                const { value: OPEN_AI_DEFAULT_INSTRUCTION } = await read
+                    .getEnvironmentReader()
+                    .getSettings()
+                    .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
+                // if the provided instruction difers from the default, we write it
+                if(completions_options["instruction"] != OPEN_AI_DEFAULT_INSTRUCTION){
+                    await SystemInstructionPersistence.update(
+                        persistence, user.id, completions_options["instruction"]
+                    )
+                }
+
                 // do request
                 OpenAiCompletionRequest(
                     app,
                     http,
                     read,
                     [
-                        { role: "system", content: system_instruction},
-                        { role: "user", content: prompt }
+                        { role: "system", content: system_instruction },
+                        { role: "user", content: prompt },
                     ],
                     user
                 ).then((result) => {
