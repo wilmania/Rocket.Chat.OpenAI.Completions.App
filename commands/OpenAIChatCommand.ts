@@ -8,6 +8,7 @@ import {
     SlashCommandContext,
 } from "@rocket.chat/apps-engine/definition/slashcommands";
 import { AppSetting } from "../config/Settings";
+import { GetUserSystemInstruction } from "../lib/GetUserSystemInstruction";
 import { OpenAiCompletionRequest } from "../lib/RequestOpenAiChat";
 import { sendMessage } from "../lib/SendMessage";
 import { sendNotification } from "../lib/SendNotification";
@@ -41,18 +42,7 @@ export class OpenAIChatCommand implements ISlashCommand {
 
         if (prompt.length == 0) {
             // get initial system instruction
-            const { value: OPEN_AI_DEFAULT_INSTRUCTION } = await read
-            .getEnvironmentReader()
-            .getSettings()
-            .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
-            // try to get user setting
-            const user_instruction = await SystemInstructionPersistence.get(read, sender.id)
-            if(!user_instruction.length){
-                // no persisted per user instruction found
-                var instruction = OPEN_AI_DEFAULT_INSTRUCTION as string
-            }else{
-                var instruction = user_instruction[0]["instruction"] as string
-            }
+            const instruction = await GetUserSystemInstruction(read, sender)
             var askChatGPT_Modal = createAskChatGPTModal(
                 modify, room, undefined, instruction, threadId
             )

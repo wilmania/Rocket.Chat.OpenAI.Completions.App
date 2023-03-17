@@ -12,6 +12,7 @@ import {
     UIKitActionButtonInteractionContext,
 } from "@rocket.chat/apps-engine/definition/uikit";
 import { AppSetting } from "../config/Settings";
+import { GetUserSystemInstruction } from "../lib/GetUserSystemInstruction";
 import { OpenAiCompletionRequest } from "../lib/RequestOpenAiChat";
 import { sendNotification } from "../lib/SendNotification";
 import { OpenAiChatApp } from "../OpenAiChatApp";
@@ -33,13 +34,9 @@ export class ActionButtonHandler {
         // If you have multiple action buttons, use `actionId` to determine
         // which one the user interacted with
         if (actionId === AppSetting.NAMESPACE + "_use-message-as-prompt") {
-            // get initial system instruction
-            const { value: OPEN_AI_DEFAULT_INSTRUCTION } = await read
-            .getEnvironmentReader()
-            .getSettings()
-            .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
+            const instruction = await GetUserSystemInstruction(read, user)
             var askChatGPT_Modal = createAskChatGPTModal(
-                modify, room, message?.text, OPEN_AI_DEFAULT_INSTRUCTION, message?.threadId || message?.id
+                modify, room, message?.text, instruction, message?.threadId || message?.id
             )
             return context.getInteractionResponder().openModalViewResponse(askChatGPT_Modal);
         }
