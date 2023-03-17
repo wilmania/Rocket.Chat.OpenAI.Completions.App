@@ -7,6 +7,7 @@ export enum AppSetting {
     NAMESPACE = "OpenAIChat",
     OpenAI_ORG = "openai_organization",
     OpenAI_API_KEY = "openai_api_key",
+    OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION = "openai_chat_default_system_instruction",
     OpenAI_CHAT_MAX_TOKENS = "openai_chat_max_tokens",
     OpenAI_CHAT_TEMPERATURE = "openai_chat_temperature",
 }
@@ -20,6 +21,16 @@ export const settings: Array<ISetting> = [
         hidden: false,
         i18nLabel: AppSetting.NAMESPACE + "_API_KEY_LABEL",
         required: true,
+    },
+    {
+        id: AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: "Your are a helpful assistant.",
+        value: "Your are a helpful assistant.",
+        hidden: false,
+        i18nLabel: AppSetting.NAMESPACE + "_DEFAULT_SYSTEM_INSTRUCTION_LABEL",
+        required: false,
     },
     {
         id: AppSetting.OpenAI_ORG,

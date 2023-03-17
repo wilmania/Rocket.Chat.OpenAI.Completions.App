@@ -32,15 +32,22 @@ export class OpenAIChatCommand implements ISlashCommand {
         const room = context.getRoom();
         const sender = context.getSender();
         const threadId = context.getThreadId()
+        const triggerId = context.getTriggerId();
+        if (!triggerId) {
+            return this.app.getLogger().error('TRIGGER UNDEFINED');
+        }
 
         if (prompt.length == 0) {
+            // get initial system instruction
+            const { value: OPEN_AI_DEFAULT_INSTRUCTION } = await read
+            .getEnvironmentReader()
+            .getSettings()
+            .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
+
             var askChatGPT_Modal = createAskChatGPTModal(
-                modify, room, undefined, threadId
+                modify, room, undefined, OPEN_AI_DEFAULT_INSTRUCTION, threadId
             )
-            const triggerId = context.getTriggerId();
-            if (!triggerId) {
-                return this.app.getLogger().error('TRIGGER UNDEFINED');
-            }
+
             return modify.getUiController().openModalView(askChatGPT_Modal, { triggerId }, sender);
 
         } else {

@@ -1,4 +1,4 @@
-import { IModify } from "@rocket.chat/apps-engine/definition/accessors";
+import { IModify, IRead } from "@rocket.chat/apps-engine/definition/accessors";
 import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import {
     BlockElementType,
@@ -12,10 +12,23 @@ export function createAskChatGPTModal(
     modify: IModify,
     room: IRoom,
     initialPrompt?: string,
+    initialInstruction?: string,
     threadId?: string,
     viewId?: string
 ): IUIKitContextualBarViewParam {
     const blocks = modify.getCreator().getBlockBuilder();
+
+    blocks.addInputBlock({
+        blockId: AppSetting.NAMESPACE + "_ask_chatgpt",
+        label: {
+            text: `Instruction`,
+            type: TextObjectType.PLAINTEXT,
+        },
+        element: blocks.newPlainTextInputElement({
+            actionId: "instruction",
+            initialValue: initialInstruction,
+        }),
+    });
 
     blocks.addInputBlock({
         blockId: AppSetting.NAMESPACE + "_ask_chatgpt",
