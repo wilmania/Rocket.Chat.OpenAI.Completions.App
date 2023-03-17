@@ -33,6 +33,7 @@ export class ViewSubmitHandler {
                         AppSetting.NAMESPACE + "_ask_chatgpt"
                     ];
                 const prompt = completions_options["suggested_prompt"];
+                const system_instruction = completions_options["instruction"];
                 const output_options = completions_options["output_option"];
                 const user = interaction_data.user;
 
@@ -41,7 +42,10 @@ export class ViewSubmitHandler {
                     app,
                     http,
                     read,
-                    [{ role: "user", content: prompt }],
+                    [
+                        { role: "system", content: system_instruction},
+                        { role: "user", content: prompt }
+                    ],
                     user
                 ).then((result) => {
                     for (var output of output_options) {

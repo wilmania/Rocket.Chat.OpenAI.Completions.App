@@ -1,6 +1,5 @@
 import {
     IHttp,
-    IHttpRequest,
     IRead,
 } from "@rocket.chat/apps-engine/definition/accessors";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
