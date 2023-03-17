@@ -43,11 +43,18 @@ export class ViewSubmitHandler {
                     .getEnvironmentReader()
                     .getSettings()
                     .getById(AppSetting.OpenAI_CHAT_DEFAULT_SYSTEM_INSTRUCTION);
+                var instruction = OPEN_AI_DEFAULT_INSTRUCTION;
                 // if the provided instruction difers from the default, we write it
-                if(completions_options["instruction"] != OPEN_AI_DEFAULT_INSTRUCTION){
+                if (
+                    completions_options["instruction"] !=
+                    OPEN_AI_DEFAULT_INSTRUCTION
+                ) {
                     await SystemInstructionPersistence.update(
-                        persistence, user.id, completions_options["instruction"]
-                    )
+                        persistence,
+                        user.id,
+                        completions_options["instruction"]
+                    );
+                    var instruction = completions_options["instruction"];
                 }
 
                 // do request
@@ -88,19 +95,20 @@ export class ViewSubmitHandler {
                                             result.content.error.message
                                     );
                                 } else {
-                                    var before_message = `**Prompt**: ${prompt}`;
-                                    var markdown_message =
-                                        result.content.choices[0].message
-                                            .content;
+                                    var content = result.content.choices[0].message
+                                    .content as string;
+                                // remove initial break lines
+                                content = content.replace(/^\s*/gm, "");
+                                var before_message = `**Instruction**: ${instruction}\n**Prompt**: ${prompt}`;
+                                var message = before_message + "\n" + content;
+
                                     switch (output_mode) {
                                         case "notification":
                                             sendNotification(
                                                 modify,
                                                 room,
                                                 user,
-                                                before_message +
-                                                    "\n" +
-                                                    markdown_message,
+                                                before_message + message,
                                                 thread_id
                                             );
                                             break;
@@ -110,9 +118,7 @@ export class ViewSubmitHandler {
                                                 user,
                                                 read,
                                                 modify,
-                                                before_message +
-                                                    "\n" +
-                                                    markdown_message
+                                                message
                                             );
                                             break;
 
@@ -120,8 +126,7 @@ export class ViewSubmitHandler {
                                             sendMessage(
                                                 modify,
                                                 room,
-                                                before_message +
-                                                    markdown_message,
+                                                message,
                                                 undefined,
                                                 thread_id
                                             );
@@ -131,8 +136,7 @@ export class ViewSubmitHandler {
                                             sendMessage(
                                                 modify,
                                                 room,
-                                                before_message +
-                                                    markdown_message
+                                                message
                                             );
                                             break;
 
