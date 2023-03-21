@@ -106,16 +106,16 @@ export class OpenAiChatApp extends App implements IPostMessageSent {
             message.room.userIds?.includes(bot_user?.id) // that has bot_user id
             // bot_user?.id !== sender.id // and was not sent by the bot itself
         ) {
-            if(bot_user?.id == sender.id && message.threadId){
-                // this the bot answer, get the actual context and store it
-                context_data = await DirectContext.get(read, message.threadId)
-                context = context_data[0]["context"]
-                context.push(
-                    { role: "assistant", content: message.text }
-                )
+            // this the bot answer, get the actual context and store it
+            if (bot_user?.id == sender.id && message.threadId) {
+                context_data = await DirectContext.get(read, message.threadId);
+                context = context_data[0]["context"];
+                context.push({ role: "assistant", content: message.text });
                 await DirectContext.update(
-                    persistence, message.threadId, context
-                )
+                    persistence,
+                    message.threadId,
+                    context
+                );
                 return;
             }
             // get thread id
@@ -127,16 +127,24 @@ export class OpenAiChatApp extends App implements IPostMessageSent {
                     read,
                     message.threadId
                 );
-                context = context_data[0]["context"]
-                context.push({ role: "user", content: message.text })
+                context = context_data[0]["context"];
+                context.push({ role: "user", content: message.text });
                 // update context on persistence
-                await DirectContext.update(persistence, message.threadId, context);
+                await DirectContext.update(
+                    persistence,
+                    message.threadId,
+                    context
+                );
             } else {
                 // no thread id, first message, initiating context
                 var context = [{ role: "user", content: message.text }] as any;
                 // update context
                 if (message.id) {
-                    await DirectContext.update(persistence, message.id, context);
+                    await DirectContext.update(
+                        persistence,
+                        message.id,
+                        context
+                    );
                 }
             }
             const result = await OpenAiCompletionRequest(
@@ -148,8 +156,17 @@ export class OpenAiChatApp extends App implements IPostMessageSent {
             );
             if (result.success) {
                 var markdown_message =
-                    result.content.choices[0].message.content;
-                sendDirect(sender, read, modify, markdown_message, message.threadId || message.id);
+                    result.content.choices[0].message.content.replace(
+                        /^\s*/gm,
+                        ""
+                    );
+                sendDirect(
+                    sender,
+                    read,
+                    modify,
+                    markdown_message,
+                    message.threadId || message.id
+                );
             } else {
                 sendNotification(
                     modify,
