@@ -28,9 +28,12 @@ Or you can call as a message action button:
 ![image](https://user-images.githubusercontent.com/1761174/225786569-6cf715f2-8bf3-4123-a019-233ce2aa3ffc.png)
 
 
-### Or send a direct message to the App user:
-![image](https://user-images.githubusercontent.com/1761174/223879917-cb02f0c0-bd37-411b-9593-7738d05f4b7d.png)
+### Or send a direct message to the App user. The answer will come as a thread, and will consider the context
+![image](https://user-images.githubusercontent.com/1761174/226495574-bd0fc66a-f82b-4b8e-bcc3-c5dccc4170d8.png)
+
 
 ## ROADMAP
-- Allow context chat on direct
-
+- Summarize Threads/Livechat
+- Allow to send the response to a group of users
+- Optionally preview the response
+- Configuration modal for the user with pre-defined system instruction and optional preview flow.
