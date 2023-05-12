@@ -45,7 +45,7 @@ export async function OpenAiCompletionRequest(
     }
     const payload = {
         user: sender.id,
-        model: "gpt-3.5-turbo",
+        model: "gpt-432k",
         messages: prompt,
         max_tokens: OPEN_AI_CHAT_MAX_TOKENS,
         temperature: temperature,
